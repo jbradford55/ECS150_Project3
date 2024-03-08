@@ -123,6 +123,7 @@ int fs_mount(const char *diskname)
 	//occupied fat blocks
 	int8_t *fat_block = malloc(BLOCK_SIZE * sizeof(int8_t));
 	int8_t occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
+	printf("%d\n", occupied_fat_spaces);
 	SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 
 
