@@ -5,7 +5,7 @@ all: $(lib)
 objects := fs.o disk.o
 
 CC := gcc
-CFlags := -Wall -Wextra -MMD -O
+CFlags := -Werror -Wall -Wextra -MMD -O
 deps := $(patsubst %.o, %.d, $(objects))
 -include $(deps)
 

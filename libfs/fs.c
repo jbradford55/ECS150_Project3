@@ -46,7 +46,7 @@ int read_bytes_to_int(char* buffer, int start, int num_bytes){
 
 	//convert binary to int
 	int output = 0;
-	for (int binary_string_index = 0; binary_string_index < strlen(binary_string); binary_string_index++){
+	for (int binary_string_index = 0; binary_string_index < (int)strlen(binary_string); binary_string_index++){
 		if (binary_string[binary_string_index] == '1'){
 			int power = strlen(binary_string) - binary_string_index - 1;
 			int sum = 1;
@@ -64,7 +64,7 @@ int count_number_of_occupied(int8_t *buffer, int block_index, int step_size){
 	int count = 0;
 	block_read(block_index, buffer);
 	for (int i = 0; i < BLOCK_SIZE; i+= step_size){
-		if (buffer[i] != NULL){
+		if (buffer[i] != 0){
 			count++;
 		}
 	}
@@ -126,7 +126,7 @@ int fs_mount(const char *diskname)
 	// SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 	SB->free_fat_spaces=0;
 	block_read(1, fat_block);
-	for (int i = 0; i < BLOCK_SIZE/2; i++){
+	for (int i = 0; i < 1/2 * BLOCK_SIZE; i++){
 		if (fat_block[i] != 0){
 			SB->free_fat_spaces++;
 		}
@@ -145,6 +145,7 @@ int fs_umount(void)
 {
 	block_disk_close();
 	/* TODO: Phase 1 */
+	return 0;
 }
 
 int fs_info(void)
@@ -158,27 +159,8 @@ int fs_info(void)
 	printf("fat_free_ratio=%d/%d\n", SB->amount_of_data_blocks-SB->free_fat_spaces, SB->amount_of_data_blocks);
 	printf("rdir_free_ratio=%d/%d\n", SB->free_root_spaces, 128);
 	/* TODO: Phase 1 */
+	return 0;
 }
-
-void int_to_bytes(int8_t *buffer, int number, int num_bytes){
-	//convert number to binary
-	char binary_string[50] = "";
-	//loop through each byte
-	for (int index = 0; index < num_bytes*8; index++){
-		if ((number & 1)==1){
-			char temp_str[50] = "1";
-			strcat(temp_str, binary_string);
-			strcpy(binary_string, temp_str);
-		} else {
-			char temp_str[50] = "0";
-			strcat(temp_str, binary_string);
-			strcpy(binary_string, temp_str);
-		}
-		number = number >> 1;
-	}
-
-	//chop 
-}	
 
 
 int fs_create(const char *filename)
@@ -188,7 +170,7 @@ int fs_create(const char *filename)
 	block_read(SB->root_directory_block_index, root_block);
 
 
-	for (int fn_index = 0; fn_index < strlen(filename); fn_index++){
+	for (int fn_index = 0; fn_index < (int)strlen(filename); fn_index++){
 		root_block[number_of_files+fn_index] = filename[fn_index];
 	}
 	root_block[number_of_files+16] = 0;
@@ -207,7 +189,7 @@ int fs_create(const char *filename)
 
 
 	block_write(SB->root_directory_block_index, root_block);	
-
+	return 0;
 
 }
 
@@ -235,7 +217,9 @@ int fs_delete(const char *filename)
 		root_block[fi+i] = 0;
 	}
 
-	block_write(SB->root_directory_block_index, root_block);		
+	block_write(SB->root_directory_block_index, root_block);	
+
+	return 0;	
 }
 
 
@@ -243,34 +227,38 @@ int fs_delete(const char *filename)
 
 int fs_ls(void)
 {
-	int8_t *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
+	char *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
 	block_read(SB->root_directory_block_index, root_block);
 
 
 	for (int file_index = 0; file_index < BLOCK_SIZE; file_index += 32){
-		if (root_block[file_index] != NULL){
+		if (root_block[file_index] != 0){
 
 			char* filename = malloc(16*sizeof(char));
 			for (int i = 0; i<16; i++){
 				filename[i] = root_block[file_index+i];
 			}
 			printf("%s", filename);
-
-			int filesize = read_bytes_to_int(root_block[file_index], 15, 4);	
+			int filesize = read_bytes_to_int(root_block, file_index+15, 4);	
 			printf("%d", filesize);			
 		
-			int fileblockstart = read_bytes_to_int(root_block[file_index], 17, 2);	
+			int fileblockstart = read_bytes_to_int(root_block, file_index+17, 2);	
 			printf("%d", fileblockstart);			
 		}
 	}
 
-	block_write(SB->root_directory_block_index, root_block);		
+	block_write(SB->root_directory_block_index, root_block);	
+
+	return 0;	
 
 }
 
 int fs_open(const char *filename)
 {
-	
+	if (filename){
+		return 0;
+
+	}
 	/* TODO: Phase 3 */
 	return 0;
 }
@@ -278,30 +266,47 @@ int fs_open(const char *filename)
 int fs_close(int fd)
 {
 	/* TODO: Phase 3 */
+	if (fd){
+		return 0;
+	}
+	
 	return 0;
 }
 
 int fs_stat(int fd)
 {
 	/* TODO: Phase 3 */
+	if (fd){
+		return 0;
+
+	}
 	return 0;
 }
 
 int fs_lseek(int fd, size_t offset)
 {
 	/* TODO: Phase 3 */
+	if (fd || offset){
+		return 0;
+	}
 	return 0;
 }
 
 int fs_write(int fd, void *buf, size_t count)
 {
 	/* TODO: Phase 4 */
+	if (fd || buf|| count){
+		return 0;
+	}
 	return 0;
 }
 
 int fs_read(int fd, void *buf, size_t count)
 {
 	/* TODO: Phase 4 */
+	if (fd || buf|| count){
+		return 0;
+	}	
 	return 0;
 }
 
