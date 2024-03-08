@@ -126,7 +126,7 @@ int fs_mount(const char *diskname)
 	// SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 	SB->free_fat_spaces=0;
 	block_read(1, fat_block);
-	for (int i = 0; i < 1/2 * BLOCK_SIZE; i++){
+	for (int i = 0; i < BLOCK_SIZE/2; i++){
 		if (fat_block[i] != 0){
 			SB->free_fat_spaces++;
 		}
