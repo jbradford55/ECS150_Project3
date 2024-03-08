@@ -83,9 +83,13 @@ struct sb{
 };
 
 static struct sb* SB;
+static char filenames[FS_FILE_MAX_COUNT][FS_FILENAME_LEN];
+static int number_of_files = 0;
 
 int fs_mount(const char *diskname)
 {
+
+
 	//read in super block
 	block_disk_open(diskname);
 	char *super_block = malloc(BLOCK_SIZE*sizeof(uint8_t));
@@ -119,8 +123,6 @@ int fs_mount(const char *diskname)
 	//occupied fat blocks
 	int8_t *fat_block = malloc(BLOCK_SIZE * sizeof(int8_t));
 	int occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
-	// printf("%d\n", occupied_fat_spaces);
-	// printf("%d\n", SB->amount_of_fat_blocks);
 	SB->free_fat_spaces = (SB->amount_of_data_blocks) - occupied_fat_spaces;
 
 
@@ -150,11 +152,26 @@ int fs_info(void)
 	/* TODO: Phase 1 */
 }
 
-void update_string(int8_t *buffer, char* filename){
-	for (int str_index = 0; str_index < strlen(filename); str_index++){
-		buffer[str_index] = filename[str_index];
+void int_to_bytes(int8_t *buffer, int number, int num_bytes){
+	//convert number to binary
+	char binary_string[50] = "";
+	//loop through each byte
+	for (int index = 0; index < num_bytes*8; index++){
+		if ((number & 1)==1){
+			char temp_str[50] = "1";
+			strcat(temp_str, binary_string);
+			strcpy(binary_string, temp_str);
+		} else {
+			char temp_str[50] = "0";
+			strcat(temp_str, binary_string);
+			strcpy(binary_string, temp_str);
+		}
+		number = number >> 1;
 	}
-}
+
+	//chop 
+}	
+
 
 int fs_create(const char *filename)
 {
@@ -162,29 +179,85 @@ int fs_create(const char *filename)
 	int8_t *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
 	block_read(SB->root_directory_block_index, root_block);
 
-	//iterate through 32 bit sized entries
-	for (int entry = 0; entry < BLOCK_SIZE; entry++){
-		
-		//update string
-		if (root_block[entry] == NULL){
-			update_string(root_block[entry], filename);
-		}
+
+	for (int fn_index = 0; fn_index < strlen(filename); fn_index++){
+		root_block[number_of_files+fn_index] = filename[fn_index];
 	}
+	root_block[number_of_files+16] = 0;
+	root_block[number_of_files+17] = 0;
+	root_block[number_of_files+18] = 0;
+	root_block[number_of_files+19] = 0;
+
+	root_block[number_of_files+20] = -1;
+	root_block[number_of_files+21] = -1;	
+
+	
+	strcpy(filenames[number_of_files],filename);
+
+	number_of_files++;
+
+
 
 	block_write(SB->root_directory_block_index, root_block);	
 
 
-
 }
+
 
 int fs_delete(const char *filename)
 {
+
 	/* TODO: Phase 2 */
+	int8_t *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
+	block_read(SB->root_directory_block_index, root_block);
+
+	//find file index
+	int fi = -1;
+	for (int i = 0; i < FS_FILE_MAX_COUNT; i++){
+		if (!strcmp(filenames[i], filename)){
+			fi = i;
+			break;
+		}
+	}
+	if (fi == -1){
+		return -1;
+	}
+
+	for (int i = 0; i<32; i++){
+		root_block[fi+i] = 0;
+	}
+
+	block_write(SB->root_directory_block_index, root_block);		
 }
+
+
+
 
 int fs_ls(void)
 {
-	/* TODO: Phase 2 */
+	int8_t *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
+	block_read(SB->root_directory_block_index, root_block);
+
+
+	for (int file_index = 0; file_index < BLOCK_SIZE; file_index += 32){
+		if (root_block[file_index] != NULL){
+
+			char* filename = malloc(16*sizeof(char));
+			for (int i = 0; i<16; i++){
+				filename[i] = root_block[file_index+i];
+			}
+			printf("%s", filename);
+
+			int filesize = read_bytes_to_int(root_block[file_index], 15, 4);	
+			printf("%d", filesize);			
+		
+			int fileblockstart = read_bytes_to_int(root_block[file_index], 17, 2);	
+			printf("%d", fileblockstart);			
+		}
+	}
+
+	block_write(SB->root_directory_block_index, root_block);		
+
 }
 
 int fs_open(const char *filename)
