@@ -78,7 +78,7 @@ struct sb{
 	int16_t amount_of_data_blocks;
 	int8_t amount_of_fat_blocks;
 
-	int8_t free_fat_spaces;
+	int free_fat_spaces;
 	int free_root_spaces;
 };
 
@@ -122,8 +122,8 @@ int fs_mount(const char *diskname)
 
 	//occupied fat blocks
 	int8_t *fat_block = malloc(BLOCK_SIZE * sizeof(int8_t));
-	int occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
-	SB->free_fat_spaces = (SB->amount_of_data_blocks) - occupied_fat_spaces;
+	int8_t occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
+	SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 
 
 	int8_t *root_block = malloc(BLOCK_SIZE * sizeof(int8_t));
@@ -262,6 +262,7 @@ int fs_ls(void)
 
 int fs_open(const char *filename)
 {
+	
 	/* TODO: Phase 3 */
 }
 
@@ -282,7 +283,6 @@ int fs_lseek(int fd, size_t offset)
 
 int fs_write(int fd, void *buf, size_t count)
 {
-	printf("ksjdbfskjdbfsdjhfn\n");
 	/* TODO: Phase 4 */
 }
 
