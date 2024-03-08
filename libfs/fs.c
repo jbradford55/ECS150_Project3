@@ -179,6 +179,8 @@ int fs_umount(void)	{
 
 int fs_info(void)
 {
+	printf("Hello\n");
+	return 0;
 	/* TODO: Phase 1 */
 	if(check_fsmount == 0) {
 		// no FS is mounted then print error message
