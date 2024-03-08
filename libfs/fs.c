@@ -282,6 +282,7 @@ int fs_lseek(int fd, size_t offset)
 
 int fs_write(int fd, void *buf, size_t count)
 {
+	printf("ksjdbfskjdbfsdjhfn\n");
 	/* TODO: Phase 4 */
 }
 
