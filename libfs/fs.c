@@ -150,9 +150,31 @@ int fs_info(void)
 	/* TODO: Phase 1 */
 }
 
+void update_string(int8_t *buffer, char* filename){
+	for (int str_index = 0; str_index < strlen(filename); str_index++){
+		buffer[str_index] = filename[str_index];
+	}
+}
+
 int fs_create(const char *filename)
 {
 	/* TODO: Phase 2 */
+	int8_t *root_block = malloc(BLOCK_SIZE*sizeof(int8_t));
+	block_read(SB->root_directory_block_index, root_block);
+
+	//iterate through 32 bit sized entries
+	for (int entry = 0; entry < BLOCK_SIZE; entry++){
+		
+		//update string
+		if (root_block[entry] == NULL){
+			update_string(root_block[entry], filename);
+		}
+	}
+
+	block_write(SB->root_directory_block_index, root_block);	
+
+
+
 }
 
 int fs_delete(const char *filename)
