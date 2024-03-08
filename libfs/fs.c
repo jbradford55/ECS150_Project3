@@ -122,11 +122,12 @@ int fs_mount(const char *diskname)
 
 	//occupied fat blocks
 	int8_t *fat_block = malloc(BLOCK_SIZE * sizeof(int8_t));
-	int8_t occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
+	block_read(1, fat_block);
+	//int8_t occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
 	// SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 	SB->free_fat_spaces=0;
-	for (int i = 0; i < SB->BLOCK_SIZE; i+=2){
-		if (fat_block[i/2] != 0){
+	for (int i = 0; i < BLOCK_SIZE; i+= 16){
+		if (fat_block[i] != 0){
 			SB->free_fat_spaces++;
 		}
 
