@@ -125,8 +125,8 @@ int fs_mount(const char *diskname)
 	int8_t occupied_fat_spaces = count_number_of_occupied(fat_block, 1, 16);
 	// SB->free_fat_spaces = (int)(SB->amount_of_data_blocks) - (int)occupied_fat_spaces;
 	SB->free_fat_spaces=0;
-	for (int i = 0; i < SB->amount_of_data_blocks*16; i+=16){
-		if (fat_block[i] == 0){
+	for (int i = 0; i < SB->BLOCK_SIZE; i+=2){
+		if (fat_block[i/2] != 0){
 			SB->free_fat_spaces++;
 		}
 
@@ -154,7 +154,7 @@ int fs_info(void)
 	printf("rdir_blk=%d\n", SB->root_directory_block_index);
 	printf("data_blk=%d\n", SB->data_block_start_index);
 	printf("data_blk_count=%d\n", SB->amount_of_data_blocks);
-	printf("fat_free_ratio=%d/%d\n", SB->free_fat_spaces, SB->amount_of_data_blocks);
+	printf("fat_free_ratio=%d/%d\n", SB->amount_of_data_blocks-SB->free_fat_spaces, SB->amount_of_data_blocks);
 	printf("rdir_free_ratio=%d/%d\n", SB->free_root_spaces, 128);
 	/* TODO: Phase 1 */
 }
@@ -271,30 +271,36 @@ int fs_open(const char *filename)
 {
 	
 	/* TODO: Phase 3 */
+	return 0;
 }
 
 int fs_close(int fd)
 {
 	/* TODO: Phase 3 */
+	return 0;
 }
 
 int fs_stat(int fd)
 {
 	/* TODO: Phase 3 */
+	return 0;
 }
 
 int fs_lseek(int fd, size_t offset)
 {
 	/* TODO: Phase 3 */
+	return 0;
 }
 
 int fs_write(int fd, void *buf, size_t count)
 {
 	/* TODO: Phase 4 */
+	return 0;
 }
 
 int fs_read(int fd, void *buf, size_t count)
 {
 	/* TODO: Phase 4 */
+	return 0;
 }
 
