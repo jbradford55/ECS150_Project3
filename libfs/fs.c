@@ -253,44 +253,62 @@ int fs_ls(void)
 
 }
 
+struct fileDescriptor {
+    int lseek;
+    int rootIndex;
+    int size;
+    int numBlocks;
+    int *dataIndices;
+    const char *filename;
+};
+
+struct fileDescriptor *fileDescriptors[32];
+
+
+
 int fs_open(const char *filename)
 {
-	if (filename){
-		return 0;
 
+	if (filename) {
+		return 0;
 	}
-	/* TODO: Phase 3 */
-	return 0;
+	return -1;
+
 }
+
 
 int fs_close(int fd)
 {
-	/* TODO: Phase 3 */
-	if (fd){
+    if (fd >= 0 && fd < 32) {
+        fileDescriptors[fd] = NULL;
 		return 0;
+    } else {
+		return -1;
 	}
-	
-	return 0;
 }
 
 int fs_stat(int fd)
 {
-	/* TODO: Phase 3 */
-	if (fd){
-		return 0;
-
+    
+    if (fd >= 0 && fd < 32 && fileDescriptors[fd] != NULL) {
+        
+        struct fileDescriptor *fileDesc = fileDescriptors[fd];
+		return fileDesc->size;
+    } else {
+		return -1;
 	}
-	return 0;
 }
+
 
 int fs_lseek(int fd, size_t offset)
 {
-	/* TODO: Phase 3 */
-	if (fd || offset){
-		return 0;
-	}
-	return 0;
+   
+    if (fd >= 0 && fd < 32) {
+		fileDescriptors[fd]->lseek = offset;
+    }
+    return (int)offset;
 }
+
 
 int fs_write(int fd, void *buf, size_t count)
 {
